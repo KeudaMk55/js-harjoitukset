@@ -1,2 +1,2 @@
 # js-harjoitukset
-JavaBullShit:
+JavaBullShit!
