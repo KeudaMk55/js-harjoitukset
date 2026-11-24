@@ -1,0 +1,2 @@
+# js-harjoitukset
+JavaBullShit:
