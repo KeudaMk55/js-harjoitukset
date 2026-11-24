@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05070a">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
+  <title>NEXUS / Deep Space Observatory</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Nexus home"><span class="brand-glyph">N</span><span>NEXUS<small>OBSERVATORY</small></span></a>
+    <div class="system-status"><i></i><span>System nominal</span></div>
+    <div class="clock"><span id="mission-time">00:00:00</span><small>UTC / Sol 242</small></div>
+  </header>
+
+  <aside class="sidebar">
+    <button class="nav-icon active" data-view="overview" aria-label="Overview"><span>◫</span><small>01</small></button>
+    <button class="nav-icon" data-view="signals" aria-label="Signals"><span>⌁</span><small>02</small></button>
+    <button class="nav-icon" data-view="systems" aria-label="Systems"><span>◉</span><small>03</small></button>
+    <button class="nav-icon" data-view="archive" aria-label="Archive"><span>□</span><small>04</small></button>
+    <button class="nav-icon" data-view="galaxy" aria-label="Galactic map"><span>✣</span><small>05</small></button>
+  </aside>
+
+  <main>
+    <section class="view active" id="overview">
+      <div class="hero-panel">
+        <div class="panel-label">
+          <span>01</span> Live orbital telemetry
+          <div class="telemetry-controls">
+            <button id="telemetry-pause" type="button" aria-pressed="false">Pause</button>
+            <button id="telemetry-refresh" type="button">Refresh scan</button>
+          </div>
+        </div>
+        <div class="hero-content">
+          <div>
+            <p class="kicker">Target acquisition / Kepler sector</p>
+            <h1>EXO<br><em>PLANET</em><br>CYGNUS</h1>
+            <div class="coordinates"><span>RA 19h 58m</span><i></i><span>DEC +44° 30′</span></div>
+          </div>
+          <div class="planet-stage">
+            <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div>
+            <div class="planet"><div class="planet-glow"></div></div>
+            <div class="planet-label"><span>KP-1037</span><b>OBSERVE</b></div>
+          </div>
+        </div>
+        <div class="telemetry">
+          <div><small>Distance</small><strong><span id="telemetry-distance">1,214</span> <b>LY</b></strong></div>
+          <div><small>Surface temp</small><strong><span id="telemetry-temperature">-42</span> <b>°C</b></strong></div>
+          <div><small>Orbital period</small><strong><span id="telemetry-period">392</span> <b>Days</b></strong></div>
+          <div><small>Signal</small><strong class="signal-value"><span id="telemetry-signal">94.2</span> <b>%</b></strong></div>
+        </div>
+        <div class="orbital-readouts">
+          <div><small>Orbital velocity</small><b id="orbital-velocity">28.4 km/s</b></div>
+          <div><small>Inclination</small><b id="orbital-inclination">3.18°</b></div>
+          <div><small>Transit phase</small><b id="orbital-phase">62.7%</b></div>
+        </div>
+      </div>
+
+      <div class="data-grid">
+        <article class="data-card spectrum-card">
+          <div class="card-head"><span>Spectral analysis</span><button id="spectrum-expand" type="button" aria-label="Expand spectral analysis">↗</button></div>
+          <canvas id="spectrum"></canvas>
+          <div class="chart-labels"><span>380nm</span><span>520nm</span><span>760nm</span></div>
+        </article>
+
+        <article class="data-card object-card">
+          <div class="card-head"><span>Object classification</span><b>LIVE</b></div>
+          <button class="classification-action" id="classification-rescan" type="button"><div class="classification"><div class="classification-ring"><strong id="classification-score">87</strong><small>%</small></div><div><span>Likely type</span><h3 id="classification-type">TERRESTRIAL</h3><p id="classification-detail">Atmosphere detected</p></div></div></button>
+        </article>
+
+        <article class="data-card activity-card">
+          <div class="card-head"><span>Discovery feed</span><button id="feed-clear" type="button" aria-label="Clear discovery feed">•••</button></div>
+          <ol class="feed" id="discovery-feed"><li><time>22:41</time><p><b>Hydrogen signature</b> detected in upper atmosphere</p></li><li><time>22:36</time><p>Orbital transit <b>confirmed</b></p></li><li><time>22:18</time><p>Stellar interference <b>cleared</b></p></li></ol>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="signals">
+      <div class="signal-panel">
+        <div class="module-header"><div><p>02 / Signal array</p><h2>Deep-space<br>listening.</h2></div><button id="signal-toggle" type="button" aria-pressed="false">Begin sweep</button></div>
+        <div class="signal-display"><div class="waveform" id="waveform"></div><div class="signal-readout"><small>Carrier lock</small><strong id="carrier-lock">—</strong><small>Frequency</small><strong id="carrier-frequency">1420.405 MHz</strong></div></div>
+        <div class="signal-events"><div><span>RX-01</span><b id="signal-rx">Standby</b></div><div><span>RX-02</span><b id="signal-range">12.8 AU</b></div><div><span>Noise floor</span><b id="signal-noise">-71 dBm</b></div></div>
+      </div>
+    </section>
+
+    <section class="view" id="systems">
+      <div class="systems-panel">
+        <div class="module-header"><div><p>03 / Core systems</p><h2>Vessel<br>diagnostics.</h2></div><button id="systems-run" type="button">Run diagnostics</button></div>
+        <div class="systems-grid">
+          <article class="system-card" data-system="propulsion">
+            <div class="system-ring"><strong id="propulsion-score">98</strong><small>%</small></div>
+            <div><span>Propulsion</span><b id="propulsion-state">Nominal</b><small id="propulsion-readout">Core output 98%</small></div>
+          </article>
+          <article class="system-card" data-system="life">
+            <div class="system-ring"><strong id="life-score">100</strong><small>%</small></div>
+            <div><span>Life support</span><b id="life-state">Nominal</b><small id="life-readout">O₂ reserve 100%</small></div>
+          </article>
+          <article class="system-card" data-system="shield">
+            <div class="system-ring"><strong id="shield-score">91</strong><small>%</small></div>
+            <div><span>Shield array</span><b id="shield-state">Nominal</b><small id="shield-readout">Field integrity 91%</small></div>
+          </article>
+        </div>
+        <div class="power-console">
+          <div><p>Power allocation</p><strong id="power-status">STABLE</strong></div>
+          <label><span>Propulsion</span><input id="power-propulsion" type="range" min="0" max="100" value="38"><b id="power-propulsion-value">38%</b></label>
+          <label><span>Life support</span><input id="power-life" type="range" min="0" max="100" value="32"><b id="power-life-value">32%</b></label>
+          <label><span>Shields</span><input id="power-shield" type="range" min="0" max="100" value="30"><b id="power-shield-value">30%</b></label>
+        </div>
+        <div class="diagnostic-log"><p>Latest diagnostics</p><ul id="diagnostic-list"><li><span>22:44:18</span> Naviscope alignment complete</li><li><span>22:43:51</span> Reactor thermal load stable</li></ul></div>
+      </div>
+    </section>
+    <section class="view" id="archive">
+      <div class="archive-panel">
+        <div class="archive-header">
+          <div><p>04 / Mission archive</p><h2><span id="planet-count">2,847</span> worlds<br>catalogued.</h2></div>
+          <div class="archive-stats"><div><span>Confirmed</span><strong id="confirmed-count">—</strong></div><div><span>Habitable</span><strong id="habitable-count">—</strong></div></div>
+        </div>
+        <div class="archive-controls">
+          <label class="search-box"><span>⌕</span><input id="planet-search" type="search" placeholder="Search designation or sector" autocomplete="off"></label>
+          <select id="planet-filter" aria-label="Filter planets by type"><option value="All">All classifications</option><option value="Terrestrial">Terrestrial</option><option value="Oceanic">Oceanic</option><option value="Volcanic">Volcanic</option><option value="Gas Giant">Gas Giant</option><option value="Ice Giant">Ice Giant</option><option value="Dwarf">Dwarf</option></select>
+          <select id="planet-sort" aria-label="Sort planets">
+            <option value="catalog">Catalog order</option>
+            <option value="distance-desc">Distance: highest</option>
+            <option value="distance-asc">Distance: lowest</option>
+            <option value="temperature-desc">Temperature: highest</option>
+            <option value="temperature-asc">Temperature: lowest</option>
+            <option value="gravity-desc">Gravity: highest</option>
+            <option value="gravity-asc">Gravity: lowest</option>
+            <option value="name-asc">Name: A–Z</option>
+            <option value="name-desc">Name: Z–A</option>
+            <option value="type-asc">Class: A–Z</option>
+            <option value="type-desc">Class: Z–A</option>
+            <option value="sector-asc">Sector: A–Z</option>
+            <option value="sector-desc">Sector: Z–A</option>
+            <option value="status-asc">Status: A–Z</option>
+            <option value="status-desc">Status: Z–A</option>
+          </select>
+          <select id="planet-page-size" aria-label="Planets per page">
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </select>
+        </div>
+        <div class="planet-table" role="table" aria-label="Planetary database">
+          <div class="planet-row planet-head" role="row">
+            <button type="button" data-sort-field="name">Designation <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="type">Class <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="sector">Sector <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="distance">Distance <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="temperature">Temperature <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="gravity">Gravity <span class="sort-indicator"></span></button>
+            <button type="button" data-sort-field="status">Status <span class="sort-indicator"></span></button>
+          </div>
+          <div id="planet-list"></div>
+        </div>
+        <div class="pagination">
+          <button id="planet-prev" type="button">← Previous</button>
+          <span id="planet-page">01 / 285</span>
+          <button id="planet-next" type="button">Next →</button>
+        </div>
+      </div>
+    </section>
+    <section class="view" id="galaxy">
+      <div class="galaxy-panel">
+        <div class="galaxy-header"><div><p>05 / Galactic command</p><h2>Choose<br>your front.</h2></div><button id="deploy-button" type="button" disabled>Select a world</button></div>
+        <div class="galaxy-map" id="galaxy-map" aria-label="Interactive galactic sector map">
+          <div class="map-zoom-controls" aria-label="Map zoom controls">
+            <button id="map-zoom-in" type="button" aria-label="Zoom map in">+</button>
+            <button id="map-zoom-out" type="button" aria-label="Zoom map out">−</button>
+            <button id="map-zoom-reset" type="button" aria-label="Reset map zoom">Reset</button>
+          </div>
+          <svg class="sector-lines" viewBox="0 0 1000 520" aria-hidden="true"><path d="M120 420 L260 345 L390 390 L520 260 L650 330 L790 180 L900 105"/><path d="M260 345 L320 190 L520 260 L610 115 L790 180"/><path d="M390 390 L430 470 L650 330"/><path d="M520 260 L700 410 L900 105"/></svg>
+          <button class="sector-node liberated" style="--x:12%;--y:81%" data-name="Malevelon Creek" data-sector="Meridian Front" data-status="Liberated" data-difficulty="Medium"><i></i><span>Malevelon Creek</span></button>
+          <button class="sector-node hostile" style="--x:26%;--y:66%" data-name="Cyberstan" data-sector="Automaton Front" data-status="Hostile" data-difficulty="Extreme"><i></i><span>Cyberstan</span></button>
+          <button class="sector-node active" style="--x:32%;--y:36%" data-name="Gaellivare" data-sector="Western Rift" data-status="Liberation in progress" data-difficulty="High"><i></i><span>Gaellivare</span></button>
+          <button class="sector-node liberated" style="--x:39%;--y:75%" data-name="Super Earth" data-sector="Home Sector" data-status="Liberated" data-difficulty="Low"><i></i><span>Super Earth</span></button>
+          <button class="sector-node hostile" style="--x:52%;--y:50%" data-name="Meridia" data-sector="Meridian Front" data-status="Critical" data-difficulty="Extreme"><i></i><span>Meridia</span></button>
+          <button class="sector-node" style="--x:61%;--y:22%" data-name="Oshaune" data-sector="Terminid Front" data-status="Contested" data-difficulty="High"><i></i><span>Oshaune</span></button>
+          <button class="sector-node active" style="--x:65%;--y:63%" data-name="Fenrir III" data-sector="Eastern Reach" data-status="Liberation in progress" data-difficulty="Medium"><i></i><span>Fenrir III</span></button>
+          <button class="sector-node" style="--x:79%;--y:34%" data-name="Tien Kwan" data-sector="Hydra Sector" data-status="Defended" data-difficulty="Medium"><i></i><span>Tien Kwan</span></button>
+          <button class="sector-node hostile" style="--x:90%;--y:20%" data-name="Vernen Wells" data-sector="Outer Rim" data-status="Hostile" data-difficulty="High"><i></i><span>Vernen Wells</span></button>
+          <div class="map-selection" id="map-selection"><small>Selected world</small><strong>Select a node</strong><span>Sector — · Threat —</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>NX-24 / DEEP FIELD UNIT</span>
+    <div class="footer-actions">
+      <button id="privacy-open" type="button">Privacy &amp; legal</button>
+      <span class="latency">Latency <b id="latency">18ms</b></span>
+    </div>
+  </footer>
+
+  <dialog id="privacy-dialog" aria-labelledby="privacy-title">
+    <button id="privacy-close" type="button" aria-label="Close privacy notice">×</button>
+    <p class="dialog-kicker">Data &amp; privacy notice</p>
+    <h2 id="privacy-title">Privacy by design</h2>
+    <p>NEXUS is a fictional simulation. Planet names, statistics, statuses, and telemetry are generated locally in your browser and are not real scientific observations.</p>
+    <ul>
+      <li>No analytics or advertising trackers are included.</li>
+      <li>No cookies, local storage, account, location, or biometric data are used.</li>
+      <li>Archive generation occurs locally and no personal data is transmitted.</li>
+      <li>All controls remain available to users without consent to optional tracking.</li>
+    </ul>
+    <p class="legal-note">EU data-protection responsibilities remain with the website owner. Before public deployment, publish a controller identity, contact details, GDPR retention/deletion process, and a hosting privacy notice.</p>
+  </dialog>
+</body>
+</html>
